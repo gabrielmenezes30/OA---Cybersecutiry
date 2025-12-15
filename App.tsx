@@ -2,17 +2,50 @@ import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { MissionView } from './components/MissionView';
 import { MentorChat } from './components/MentorChat';
+import { LoginPage } from './components/LoginPage';
+import { AdminMissionEditor } from './components/AdminMissionEditor';
 import { INITIAL_MISSIONS } from './constants';
-import { MissionState } from './types';
+import { MissionState, User, Mission } from './types';
 import { MessageSquare, Menu } from 'lucide-react';
 
 const App: React.FC = () => {
+  // Auth State
+  const [user, setUser] = useState<User | null>(null);
+
+  // Content State
+  const [missions, setMissions] = useState<Mission[]>(INITIAL_MISSIONS);
   const [currentMissionId, setCurrentMissionId] = useState(INITIAL_MISSIONS[0].id);
   const [missionStates, setMissionStates] = useState<Record<string, MissionState>>({});
+  
+  // UI State
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'mission' | 'create'>('mission');
+  const [editingMission, setEditingMission] = useState<Mission | null>(null);
 
-  const currentMission = INITIAL_MISSIONS.find(m => m.id === currentMissionId) || INITIAL_MISSIONS[0];
+  // Logic
+  const handleLogin = (loggedInUser: User) => {
+    setUser(loggedInUser);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setViewMode('mission');
+    setEditingMission(null);
+  };
+
+  const handleSaveMission = (mission: Mission) => {
+    setMissions(prev => {
+      const exists = prev.some(m => m.id === mission.id);
+      if (exists) {
+        return prev.map(m => m.id === mission.id ? mission : m);
+      }
+      return [...prev, mission];
+    });
+    setCurrentMissionId(mission.id);
+    setViewMode('mission');
+    setEditingMission(null);
+  };
 
   const handleMissionUpdate = (newState: MissionState) => {
     setMissionStates(prev => ({
@@ -31,7 +64,13 @@ const App: React.FC = () => {
     });
   };
 
-  // Initialize state for a mission if not exists
+  // If not logged in, show Login Page
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Derived state
+  const currentMission = missions.find(m => m.id === currentMissionId) || missions[0];
   const currentMissionState = missionStates[currentMissionId] || {
     missionId: currentMissionId,
     completed: false,
@@ -56,11 +95,24 @@ const App: React.FC = () => {
       {/* Sidebar (Responsive) */}
       <div className={`fixed inset-y-0 left-0 z-10 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out`}>
         <Sidebar 
-          missions={INITIAL_MISSIONS}
+          missions={missions}
           currentMissionId={currentMissionId}
           missionStates={missionStates}
+          user={user}
+          onLogout={handleLogout}
           onSelectMission={(id) => {
             setCurrentMissionId(id);
+            setViewMode('mission');
+            setIsMobileMenuOpen(false);
+          }}
+          onCreateMission={() => {
+            setEditingMission(null);
+            setViewMode('create');
+            setIsMobileMenuOpen(false);
+          }}
+          onEditMission={(mission) => {
+            setEditingMission(mission);
+            setViewMode('create');
             setIsMobileMenuOpen(false);
           }}
         />
@@ -68,23 +120,38 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 relative flex flex-col min-w-0">
-        <MissionView 
-          mission={currentMission}
-          missionState={currentMissionState}
-          onUpdateState={handleMissionUpdate}
-          onComplete={handleMissionComplete}
-        />
+        
+        {viewMode === 'create' && user.role === 'admin' ? (
+          <AdminMissionEditor 
+            initialMission={editingMission}
+            onSave={handleSaveMission}
+            onCancel={() => {
+              setViewMode('mission');
+              setEditingMission(null);
+            }}
+          />
+        ) : (
+          <>
+            <MissionView 
+              mission={currentMission}
+              missionState={currentMissionState}
+              onUpdateState={handleMissionUpdate}
+              onComplete={handleMissionComplete}
+            />
 
-        {/* Chat Toggle FAB */}
-        <button
-          onClick={() => setIsChatOpen(true)}
-          className={`fixed bottom-6 right-6 p-4 rounded-full bg-cyber-500 text-cyber-900 shadow-lg shadow-cyber-500/20 hover:scale-105 transition-transform z-20 ${isChatOpen ? 'hidden' : 'flex'}`}
-        >
-          <MessageSquare size={24} />
-        </button>
+            {/* Chat Toggle FAB */}
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className={`fixed bottom-6 right-6 p-4 rounded-full bg-cyber-500 text-cyber-900 shadow-lg shadow-cyber-500/20 hover:scale-105 transition-transform z-20 ${isChatOpen ? 'hidden' : 'flex'}`}
+            >
+              <MessageSquare size={24} />
+            </button>
 
-        {/* Chat Panel */}
-        <MentorChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+            {/* Chat Panel */}
+            <MentorChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+          </>
+        )}
+
       </main>
 
       {/* Overlay for mobile sidebar */}
