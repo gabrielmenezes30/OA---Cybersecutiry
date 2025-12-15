@@ -4,6 +4,11 @@ export enum QuestionType {
   CODE_FIX = 'CODE_FIX'
 }
 
+export interface User {
+  username: string;
+  role: 'admin' | 'user';
+}
+
 export interface Option {
   id: string;
   text: string;
