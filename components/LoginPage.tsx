@@ -1,24 +1,43 @@
 import React, { useState } from 'react';
-import { Shield, Lock, Terminal } from 'lucide-react';
+import { Shield, Lock, Terminal, UserPlus } from 'lucide-react';
 import { User } from '../types';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
+  onNavigateToRegister: () => void;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToRegister }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
+    // Check default admin account
     if (username === 'admin' && password === 'admin') {
       onLogin({ username: 'Administrador', role: 'admin' });
-    } else if (username === 'user' && password === 'user') {
+      return;
+    }
+    
+    // Check default user account
+    if (username === 'user' && password === 'user') {
       onLogin({ username: 'Estudante', role: 'user' });
+      return;
+    }
+
+    // Check registered users from localStorage
+    const registeredUsers = JSON.parse(localStorage.getItem('cyberEdUsers') || '[]');
+    const foundUser = registeredUsers.find(
+      (u: any) => u.username === username && u.password === password
+    );
+
+    if (foundUser) {
+      onLogin({ username: foundUser.username, role: foundUser.role });
     } else {
-      setError('Credenciais inválidas.');
+      setError('Credenciais inválidas. Verifique seu usuário e senha.');
     }
   };
 
@@ -79,6 +98,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             className="w-full bg-gradient-to-r from-cyber-600 to-cyber-500 hover:from-cyber-500 hover:to-cyber-400 text-cyber-900 font-bold py-3.5 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
           >
             ACESSAR SISTEMA
+          </button>
+
+          <button 
+            type="button"
+            onClick={onNavigateToRegister}
+            className="w-full bg-cyber-800 border-2 border-cyber-600 hover:border-cyber-500 text-white font-bold py-3.5 rounded-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+          >
+            <UserPlus size={20} />
+            CRIAR NOVA CONTA
           </button>
         </form>
         

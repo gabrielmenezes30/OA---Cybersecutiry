@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { MissionView } from './components/MissionView';
 import { MentorChat } from './components/MentorChat';
 import { LoginPage } from './components/LoginPage';
+import { RegisterPage } from './components/RegisterPage';
 import { InstructionsPage } from './components/InstructionsPage';
 import { AdminMissionEditor } from './components/AdminMissionEditor';
 import { INITIAL_MISSIONS } from './constants';
@@ -13,6 +14,7 @@ const App: React.FC = () => {
   // Auth State
   const [user, setUser] = useState<User | null>(null);
   const [hasSeenInstructions, setHasSeenInstructions] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
 
   // Content State
   const [missions, setMissions] = useState<Mission[]>(INITIAL_MISSIONS);
@@ -29,6 +31,13 @@ const App: React.FC = () => {
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
     setHasSeenInstructions(false);
+    setAuthView('login');
+  };
+
+  const handleRegister = (newUser: User) => {
+    setUser(newUser);
+    setHasSeenInstructions(false);
+    setAuthView('login');
   };
 
   const handleLogout = () => {
@@ -36,6 +45,7 @@ const App: React.FC = () => {
     setHasSeenInstructions(false);
     setViewMode('mission');
     setEditingMission(null);
+    setAuthView('login');
   };
 
   const handleSaveMission = (mission: Mission) => {
@@ -68,9 +78,22 @@ const App: React.FC = () => {
     });
   };
 
-  // If not logged in, show Login Page
+  // If not logged in, show Login or Register Page
   if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
+    if (authView === 'register') {
+      return (
+        <RegisterPage 
+          onRegister={handleRegister}
+          onBackToLogin={() => setAuthView('login')}
+        />
+      );
+    }
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+        onNavigateToRegister={() => setAuthView('register')}
+      />
+    );
   }
 
   // If logged in but hasn't seen instructions, show Instructions Page

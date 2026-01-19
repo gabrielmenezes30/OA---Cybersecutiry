@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mission, QuestionType, LearningModule, Question, ContentBlock, Reference } from '../types';
-import { Plus, Trash2, Save, BookOpen, X, Edit, Code, Type, AlertCircle, ExternalLink } from 'lucide-react';
+import { Mission, QuestionType, LearningModule, Question, ContentBlock, Reference, Option } from '../types';
+import { Plus, Trash2, Save, BookOpen, X, Edit, Code, Type, AlertCircle, ExternalLink, CheckCircle, Circle } from 'lucide-react';
 
 interface AdminMissionEditorProps {
   initialMission?: Mission | null;
@@ -38,8 +38,40 @@ export const AdminMissionEditor: React.FC<AdminMissionEditorProps> = ({ initialM
       context: '',
       validationRegex: '',
       validationError: '',
-      correctAnswerCriteria: ''
+      correctAnswerCriteria: '',
+      options: []
     }]);
+  };
+
+  const addOption = (questionIndex: number) => {
+    const newQuestions = [...questions];
+    if (!newQuestions[questionIndex].options) {
+      newQuestions[questionIndex].options = [];
+    }
+    newQuestions[questionIndex].options!.push({
+      id: `opt_${Date.now()}`,
+      text: '',
+      isCorrect: false,
+      explanation: ''
+    });
+    setQuestions(newQuestions);
+  };
+
+  const removeOption = (questionIndex: number, optionIndex: number) => {
+    const newQuestions = [...questions];
+    newQuestions[questionIndex].options = newQuestions[questionIndex].options?.filter((_, i) => i !== optionIndex);
+    setQuestions(newQuestions);
+  };
+
+  const updateOption = (questionIndex: number, optionIndex: number, field: keyof Option, value: any) => {
+    const newQuestions = [...questions];
+    if (newQuestions[questionIndex].options && newQuestions[questionIndex].options![optionIndex]) {
+      newQuestions[questionIndex].options![optionIndex] = {
+        ...newQuestions[questionIndex].options![optionIndex],
+        [field]: value
+      };
+      setQuestions(newQuestions);
+    }
   };
 
   const handleSave = () => {
@@ -383,8 +415,65 @@ export const AdminMissionEditor: React.FC<AdminMissionEditorProps> = ({ initialM
                     )}
                     
                     {q.type === QuestionType.MULTIPLE_CHOICE && (
-                      <div className="col-span-2 bg-cyber-900/50 p-2 rounded border border-cyber-700/50 text-center text-gray-500 text-sm">
-                        * Edição de opções de Múltipla Escolha simplificada neste editor. Use Pergunta Aberta para prototipagem rápida.
+                      <div className="col-span-2 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs text-gray-500">Opções de Resposta</label>
+                          <button 
+                            onClick={() => addOption(idx)} 
+                            className="flex items-center gap-1 text-xs text-cyan-400 border border-cyan-500/30 px-2 py-1 rounded hover:bg-cyan-500/10"
+                          >
+                            <Plus size={12} /> Adicionar Opção
+                          </button>
+                        </div>
+                        
+                        {q.options && q.options.length > 0 ? (
+                          <div className="space-y-2">
+                            {q.options.map((option, optIdx) => (
+                              <div key={option.id} className="bg-cyber-900 border border-cyber-700 rounded-lg p-3 space-y-2">
+                                <div className="flex gap-2 items-start">
+                                  <button
+                                    onClick={() => updateOption(idx, optIdx, 'isCorrect', !option.isCorrect)}
+                                    className={`mt-1 flex-shrink-0 ${option.isCorrect ? 'text-green-500' : 'text-gray-600'} hover:text-green-400`}
+                                    title={option.isCorrect ? 'Resposta correta' : 'Marcar como correta'}
+                                  >
+                                    {option.isCorrect ? <CheckCircle size={20} /> : <Circle size={20} />}
+                                  </button>
+                                  <div className="flex-1 space-y-2">
+                                    <input 
+                                      value={option.text}
+                                      onChange={(e) => updateOption(idx, optIdx, 'text', e.target.value)}
+                                      className="w-full bg-cyber-800 border border-cyber-600 rounded p-2 text-sm text-white focus:border-cyan-500 focus:outline-none"
+                                      placeholder={`Opção ${optIdx + 1}...`}
+                                    />
+                                    <input 
+                                      value={option.explanation}
+                                      onChange={(e) => updateOption(idx, optIdx, 'explanation', e.target.value)}
+                                      className="w-full bg-cyber-800 border border-cyber-600 rounded p-2 text-xs text-gray-400 focus:border-cyan-500 focus:outline-none"
+                                      placeholder="Explicação (opcional)..."
+                                    />
+                                  </div>
+                                  <button 
+                                    onClick={() => removeOption(idx, optIdx)} 
+                                    className="mt-1 text-red-500 hover:text-red-400 flex-shrink-0"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center p-4 border border-dashed border-cyber-700/50 rounded text-gray-600 text-xs">
+                            Nenhuma opção adicionada. Clique em "Adicionar Opção" para criar alternativas.
+                          </div>
+                        )}
+                        
+                        {q.options && q.options.length > 0 && !q.options.some(opt => opt.isCorrect) && (
+                          <div className="flex items-center gap-2 text-yellow-500 text-xs bg-yellow-500/10 border border-yellow-500/30 rounded p-2">
+                            <AlertCircle size={14} />
+                            <span>Atenção: Nenhuma opção marcada como correta</span>
+                          </div>
+                        )}
                       </div>
                     )}
                  </div>
