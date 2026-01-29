@@ -45,13 +45,13 @@ export const InstructionsPage: React.FC<InstructionsPageProps> = ({ onContinue }
             Vídeo Tutorial
           </h2>
           <div className="aspect-video bg-black/30 rounded-lg overflow-hidden">
-            <video 
-              controls 
+            <iframe 
               className="w-full h-full"
-              src="/video apresentacao.mp4"
-            >
-              Seu navegador não suporta a tag de vídeo.
-            </video>
+              src="https://www.youtube.com/embed/l7jQUrR1Pvs"
+              title="Vídeo Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </div>
 
