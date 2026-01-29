@@ -7,7 +7,7 @@ interface InstructionsPageProps {
 
 export const InstructionsPage: React.FC<InstructionsPageProps> = ({ onContinue }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white p-8">
+    <div className="min-h-screen bg-cyber-800/80 text-white p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
@@ -59,7 +59,7 @@ export const InstructionsPage: React.FC<InstructionsPageProps> = ({ onContinue }
         <div className="flex justify-center">
           <button
             onClick={onContinue}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-8 py-4 rounded-lg font-bold text-lg flex items-center gap-2 transition-all transform hover:scale-105"
+            className="bg-cyber-500 px-8 py-4 rounded-lg font-bold text-lg flex items-center gap-2 transition-all transform hover:scale-105"
           >
             Começar Aventura
             <ArrowRight className="w-5 h-5" />
