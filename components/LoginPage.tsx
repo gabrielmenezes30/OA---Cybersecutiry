@@ -1,24 +1,62 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { Shield, Lock, Terminal } from 'lucide-react';
+=======
+import { Shield, Lock, Terminal, UserPlus } from 'lucide-react';
+>>>>>>> master
 import { User } from '../types';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
+<<<<<<< HEAD
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+=======
+  onNavigateToRegister: () => void;
+}
+
+export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToRegister }) => {
+>>>>>>> master
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (username === 'admin' && password === 'admin') {
       onLogin({ username: 'Administrador', role: 'admin' });
     } else if (username === 'user' && password === 'user') {
       onLogin({ username: 'Estudante', role: 'user' });
     } else {
       setError('Credenciais inválidas.');
+=======
+    setError('');
+    
+    // Check default admin account
+    if (username === 'admin' && password === 'admin') {
+      onLogin({ username: 'Administrador', role: 'admin' });
+      return;
+    }
+    
+    // Check default user account
+    if (username === 'user' && password === 'user') {
+      onLogin({ username: 'Estudante', role: 'user' });
+      return;
+    }
+
+    // Check registered users from localStorage
+    const registeredUsers = JSON.parse(localStorage.getItem('cyberEdUsers') || '[]');
+    const foundUser = registeredUsers.find(
+      (u: any) => u.username === username && u.password === password
+    );
+
+    if (foundUser) {
+      onLogin({ username: foundUser.username, role: foundUser.role });
+    } else {
+      setError('Credenciais inválidas. Verifique seu usuário e senha.');
+>>>>>>> master
     }
   };
 
@@ -80,6 +118,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           >
             ACESSAR SISTEMA
           </button>
+<<<<<<< HEAD
+=======
+
+          <button 
+            type="button"
+            onClick={onNavigateToRegister}
+            className="w-full bg-cyber-800 border-2 border-cyber-600 hover:border-cyber-500 text-white font-bold py-3.5 rounded-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+          >
+            <UserPlus size={20} />
+            CRIAR NOVA CONTA
+          </button>
+>>>>>>> master
         </form>
         
         <div className="mt-8 pt-6 border-t border-cyber-700/50 text-center">

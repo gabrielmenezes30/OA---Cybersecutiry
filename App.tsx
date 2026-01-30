@@ -3,6 +3,11 @@ import { Sidebar } from './components/Sidebar';
 import { MissionView } from './components/MissionView';
 import { MentorChat } from './components/MentorChat';
 import { LoginPage } from './components/LoginPage';
+<<<<<<< HEAD
+=======
+import { RegisterPage } from './components/RegisterPage';
+import { InstructionsPage } from './components/InstructionsPage';
+>>>>>>> master
 import { AdminMissionEditor } from './components/AdminMissionEditor';
 import { INITIAL_MISSIONS } from './constants';
 import { MissionState, User, Mission } from './types';
@@ -11,6 +16,11 @@ import { MessageSquare, Menu } from 'lucide-react';
 const App: React.FC = () => {
   // Auth State
   const [user, setUser] = useState<User | null>(null);
+<<<<<<< HEAD
+=======
+  const [hasSeenInstructions, setHasSeenInstructions] = useState(false);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+>>>>>>> master
 
   // Content State
   const [missions, setMissions] = useState<Mission[]>(INITIAL_MISSIONS);
@@ -26,12 +36,30 @@ const App: React.FC = () => {
   // Logic
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
+<<<<<<< HEAD
+=======
+    setHasSeenInstructions(false);
+    setAuthView('login');
+  };
+
+  const handleRegister = (newUser: User) => {
+    setUser(newUser);
+    setHasSeenInstructions(false);
+    setAuthView('login');
+>>>>>>> master
   };
 
   const handleLogout = () => {
     setUser(null);
+<<<<<<< HEAD
     setViewMode('mission');
     setEditingMission(null);
+=======
+    setHasSeenInstructions(false);
+    setViewMode('mission');
+    setEditingMission(null);
+    setAuthView('login');
+>>>>>>> master
   };
 
   const handleSaveMission = (mission: Mission) => {
@@ -64,9 +92,33 @@ const App: React.FC = () => {
     });
   };
 
+<<<<<<< HEAD
   // If not logged in, show Login Page
   if (!user) {
     return <LoginPage onLogin={handleLogin} />;
+=======
+  // If not logged in, show Login or Register Page
+  if (!user) {
+    if (authView === 'register') {
+      return (
+        <RegisterPage 
+          onRegister={handleRegister}
+          onBackToLogin={() => setAuthView('login')}
+        />
+      );
+    }
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+        onNavigateToRegister={() => setAuthView('register')}
+      />
+    );
+  }
+
+  // If logged in but hasn't seen instructions, show Instructions Page
+  if (!hasSeenInstructions) {
+    return <InstructionsPage onContinue={() => setHasSeenInstructions(true)} />;
+>>>>>>> master
   }
 
   // Derived state

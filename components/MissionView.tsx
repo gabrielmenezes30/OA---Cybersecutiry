@@ -70,13 +70,33 @@ export const MissionView: React.FC<MissionViewProps> = ({
     // 1. Local Regex Validation (Google Forms style)
     if (question.validationRegex) {
       try {
+<<<<<<< HEAD
         const regex = new RegExp(question.validationRegex);
+=======
+        // Extract flags from regex pattern (e.g., (?i) for case-insensitive)
+        let pattern = question.validationRegex;
+        let flags = '';
+        
+        // Check for inline flags like (?i)
+        const flagMatch = pattern.match(/^\(\?([imsu]+)\)/);
+        if (flagMatch) {
+          flags = flagMatch[1];
+          pattern = pattern.replace(/^\(\?[imsu]+\)/, '');
+        }
+        
+        const regex = new RegExp(pattern, flags);
+>>>>>>> master
         if (!regex.test(tempAnswer.trim())) {
           setLocalError(question.validationError || "Resposta inválida.");
           return; // Do not proceed, keep user on input
         }
       } catch (e) {
         console.error("Invalid regex", e);
+<<<<<<< HEAD
+=======
+        setLocalError("Erro na validação. Tente novamente.");
+        return;
+>>>>>>> master
       }
       
       // If regex passes, mark as correct automatically without AI

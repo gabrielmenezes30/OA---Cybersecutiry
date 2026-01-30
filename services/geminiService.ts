@@ -2,6 +2,10 @@ import { GoogleGenAI } from "@google/genai";
 import { Question, QuestionType } from "../types";
 
 const apiKey = process.env.API_KEY || '';
+<<<<<<< HEAD
+=======
+console.log('🔑 API Key carregada:', apiKey ? `Sim (${apiKey.substring(0, 10)}...)` : 'NÃO ENCONTRADA');
+>>>>>>> master
 const ai = new GoogleGenAI({ apiKey });
 
 // Helper to determine model based on complexity, though 2.5-flash is usually sufficient and fast
@@ -65,7 +69,16 @@ export const getChatResponse = async (
   history: { role: 'user' | 'model'; text: string }[],
   currentMessage: string
 ): Promise<string> => {
+<<<<<<< HEAD
   if (!apiKey) return "Chave de API ausente.";
+=======
+  console.log('💬 getChatResponse chamado. API Key presente?', !!apiKey);
+  
+  if (!apiKey) {
+    console.error('❌ API Key ausente no getChatResponse');
+    return "Chave de API ausente. Configure GEMINI_API_KEY no arquivo .env.local";
+  }
+>>>>>>> master
 
   try {
     // Convert generic history to Gemini format if needed, 
